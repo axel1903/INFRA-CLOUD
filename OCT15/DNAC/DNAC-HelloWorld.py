@@ -31,16 +31,39 @@ print(len(token))
 req_url = DNAC_scheme+DNAC_authority+DNAC_port+DNAC_path
 print(req_url)
 headers = {'X-auth-token': token}
-resp_devices = requests.request('GET', req_url, headers=headers, verify=False)
-print(resp_devices)
-resp_devices_json = resp_devices.json()
-#print("Response (json):")
-print(json.dumps(resp_devices_json, indent=4))
-print('Inventory Request - Filtering output')
-# RESPONSE DATA: OUTPUT USING A LOOP TO PROCESS LIST ITEMS
-for device in resp_devices_json['response']:
-    if device['type'] != None:
-        print('===')
-        print('Hostname: ' + device['hostname'])
-        print('Type: ' + device['type'])
-        print('IP: ' + device['managementIpAddress'])
+import os, requests, datetime
+
+requests.packages.urllib3.disable_warnings()
+
+DNAC_SCHEME = "https://"
+DNAC_HOST   = os.getenv("DNAC_HOST", "sandboxdnac2.cisco.com")
+DNAC_PORT   = ":443"
+PATH_TOKEN  = "/dna/system/api/v1/auth/token"
+PATH_DEVS   = "/dna/intent/api/v1/network-device"
+DNAC_USER   = os.getenv("DNAC_USER", "devnetuser")
+DNAC_PSW    = os.getenv("DNAC_PSW",  "Cisco123!")
+
+BASE = f"{DNAC_SCHEME}{DNAC_HOST}{DNAC_PORT}"
+
+def token():
+    r = requests.post(BASE+PATH_TOKEN, auth=(DNAC_USER, DNAC_PSW), verify=False, timeout=15)
+    r.raise_for_status()
+    return r.json()["Token"]
+
+def device_count(tok):
+    r = requests.get(BASE+PATH_DEVS, headers={"X-Auth-Token": tok}, verify=False, timeout=20)
+    r.raise_for_status()
+    data = r.json()
+    items = data.get("response", data)
+    return len(items) if isinstance(items, list) else 0
+
+if __name__ == "__main__":
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Timestamp: {ts}")
+    try:
+        tok = token()
+        cnt = device_count(tok)
+        print(f"DNA Center host: {DNAC_HOST}")
+        print(f"Devices gevonden: {cnt}")
+    except Exception as e:
+        print(f"Fout bij API-call: {e}")
