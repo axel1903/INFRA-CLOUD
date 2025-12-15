@@ -5,4 +5,5 @@
   tasks: 
     - apt:
         name: apache2
-        state: present| grep66
+        autoremove: yes
+        state: absent

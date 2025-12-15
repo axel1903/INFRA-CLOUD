@@ -1,0 +1,85 @@
+<html>
+<head>
+    <title>Locatie & Tijd Demo</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Run by Axel Bah</h1>
+    <h2>Experiment succeeded</h2>
+
+    <!-- Tijd -->
+    <h3>Huidige datum & tijd:</h3>
+    <p id="datetime">Laden...</p>
+
+    <!-- Locatie -->
+    <h3>Geschatte locatie (IP-gebaseerd):</h3>
+    <p id="location">Locatie wordt geladen...</p>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        // ====== DATUM & TIJD ======
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById("datetime").innerHTML = now.toLocaleString();
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+
+        // ====== LOCATIE OP BASIS VAN IP ======
+        fetch("https://ipwho.is/")
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    document.getElementById("location").innerText =
+                        "Kon locatie niet bepalen op basis van IP.";
+                    return;
+                }
+
+                const lat = data.latitude;
+                const lon = data.longitude;
+
+                const city = data.city || "Onbekende stad";
+                const region = data.region || "Onbekende regio";
+                const country = data.country || "Onbekend land";
+
+                document.getElementById("location").innerHTML =
+                    `Stad: ${city}<br>Regio: ${region}<br>Land: ${country}`;
+
+                // ====== KAART ======
+                var map = L.map('map').setView([lat, lon], 12);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                }).addTo(map);
+
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`Geschatte locatie<br>${city}, ${country}`)
+                    .openPopup();
+            })
+            .catch(error => {
+                document.getElementById("location").innerText =
+                    "Er is een fout opgetreden bij het ophalen van de locatie.";
+            });
+    </script>
+
+</body>
+</html>

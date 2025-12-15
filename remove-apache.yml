@@ -1,0 +1,13 @@
+---
+- name: Remove Apache from webservers
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Ensure apache2 is removed
+      apt:
+        name: apache2
+        state: absent
+        purge: yes
+
+
