@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'ENVIRONMENT', defaultValue: 'dev', description: 'Target environment')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo "Building application for ${params.ENVIRONMENT}"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests'
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                expression { params.ENVIRONMENT == 'prod' }
+            }
+            steps {
+                echo 'Deploying to production environment'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished'
+        }
+    }
+}
