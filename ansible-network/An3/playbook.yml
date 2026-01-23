@@ -1,0 +1,10 @@
+---
+- name: An3 - Ansible playbook for cloud sandbox device
+  hosts: sandbox-router
+  gather_facts: no
+
+  tasks:
+    - name: Show version on sandbox device
+      ios_command:
+        commands:
+          - show version

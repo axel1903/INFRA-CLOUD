@@ -1,0 +1,13 @@
+---
+- name: An1 - Basic Ansible Lab 7.4.7
+  hosts: localhost
+  gather_facts: yes
+
+  tasks:
+    - name: Show hostname
+      debug:
+        msg: "Hostname is {{ ansible_hostname }}"
+
+    - name: Show OS information
+      debug:
+        msg: "OS is {{ ansible_distribution }} {{ ansible_distribution_version }}"

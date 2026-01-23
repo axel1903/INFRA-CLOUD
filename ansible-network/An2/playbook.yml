@@ -1,0 +1,19 @@
+---
+- name: An2 - Own Ansible Playbook Experiment
+  hosts: localhost
+  gather_facts: yes
+
+  tasks:
+    - name: Create demo directory
+      file:
+        path: /tmp/ansible_demo
+        state: directory
+        mode: '0755'
+
+    - name: Create demo file
+      copy:
+        dest: /tmp/ansible_demo/info.txt
+        content: |
+          This file was created by Ansible.
+          Hostname: {{ ansible_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
